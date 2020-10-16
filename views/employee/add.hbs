@@ -1,0 +1,166 @@
+ <a class="btn btn-info" href="/customer/list"><i class="fa fa-chevron-left" aria-hidden="true"></i>  Back to List</a><br/><br/>
+<h3>Invoice System</h3>
+
+<script language="javascript">
+      function addRow(tableID) {
+        var table = document.getElementById(tableID);
+        var rowCount = table.rows.length;
+        
+          // limit the user from creating fields more than your limits
+          var row = table.insertRow(rowCount);
+
+          var colCount = table.rows[0].cells.length;
+          row.id = "row_" + rowCount;
+          for (var i = 0; i < colCount; i++) {
+            var newcell = row.insertCell(i);
+            newcell.outerHTML = table.rows[0].cells[i].outerHTML;
+          }
+          var listitems = row.querySelectorAll("input, select");
+
+          for (i = 0; i < listitems.length; i++) {
+            listitems[i].setAttribute("oninput", "calculate('" + row.id + "')");
+          }
+        
+      }
+      function calculate(elementID) {
+        var mainRow = document.getElementById(elementID);
+        var myBox1 = mainRow.querySelectorAll("[name=qty]")[0].value;
+        var myBox3 = mainRow.querySelectorAll("[name=sel]")[0].value;
+        var total = mainRow.querySelectorAll("[name=total]")[0];
+        var myResult1 = myBox1 * myBox3;
+        total.value = myResult1;
+
+        // calculate the totale of every total
+        var sumContainer = document.getElementById("totalOfTotals");
+        var totalContainers = document.querySelectorAll("[name=total]"),
+          i;
+        var sumValue = 0;
+        for (i = 0; i < totalContainers.length; ++i) {
+          sumValue += parseInt(totalContainers[i].value);
+        }
+        sumContainer.textContent = sumValue;
+
+        var finalTotal = document.getElementById("finalTotal");
+        var discount = 0;
+        var discountCountainer = document.getElementById("discount");
+        discount = discountCountainer.value;
+        
+        if (discount==null) {
+           discount = 0;
+          finalTotal.value = sumValue;
+        } else {
+          sumValue =sumValue-discount;
+          finalTotal.value = sumValue;
+        }
+        
+
+      }
+
+      function calculateFinalAmount(discount) {
+        var sumContainer = document.getElementById("totalOfTotals");
+        var sumValue = sumContainer.textContent;
+        sumValue = sumValue - (sumValue*discount/100);
+        var finalTotal = document.getElementById("finalTotal");
+        finalTotal.value = sumValue;       
+}      
+</script>
+
+<form action="/customer" method="POST">
+<input type="hidden" name="_id" value="{{employee._id}}">
+   <label for="selectt"><b>Customer List</b></label>
+   <br/>
+              <select class="form-control" name="selectt" id="selectt"  required>
+                <option value="" disabled selected>Select Customer</option>
+                <option value="1">Mark Benson</option>
+                <option value="2">Bob Smith</option>
+                <option value="3">John Draper</option>
+               
+              </select>
+     
+
+<br/>
+<table class="table">
+  <thead>
+    <tr>      
+      <th scope="col">Product</th>
+      <th scope="col">Quantity</th>
+      <th scope="col">Price</th>
+    </tr>
+  </thead>
+</table>
+    <table class="table" id="dataTable" class="form" size="3" >
+     
+      <tbody>
+        <tr id="row_0">
+          <p>          
+
+            <td>
+              
+              <select class="form-control" name="sel" id="sel" oninput="calculate('row_0')" style="border-color: gray;" required>
+                <option value="" disabled selected>Choose your option</option>
+                <option value="29">Parachute Pants</option>
+                <option value="9">Phone Holder</option>
+                <option value="5">Pet Rock</option>
+                <option value="15">Egg Timer</option>
+                <option value="21">Neon Green Hat</option>
+              </select>
+            </td>
+             <td>
+              
+              <input border="0" style="border-color:gainsboro"
+                type="number"
+                required="required"
+                name="qty"
+                oninput="calculate('row_0')"
+              />
+            </td>
+            <td>
+              
+              <input style="border-color:gainsboro"
+                type="text"
+                required="required"
+                class="small"
+                name="total"
+              />
+            </td>
+          </p>
+        </tr>
+      </tbody>
+    </table>
+    
+     <button class="btn btn-secondary" type="button" value="Add" onClick="addRow('dataTable')" ><i class="fa fa-plus"></i>  Product</button>
+     <br/>
+     <br/>
+    <div>
+      <label>Discount</label><br/>
+              <input
+                id="discount"
+                type="number"                
+                name="discount"
+                oninput="calculateFinalAmount(this.value)"
+                value="{{employee.discount}}"
+              />
+    </div>
+    <div>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<label>Total</label>
+              <input style="border-color:gainsboro"
+                id="finalTotal"
+                type="number"
+                required="required"
+                name="finalTotal"
+                readonly="true"
+               value="{{employee.finalTotal}}"
+              />
+    </div>
+         <div>
+      <tr>
+        <span style="color: whitesmoke;">Total without discount</span>
+        <span style="color:whitesmoke;" id="totalOfTotals">0</span>
+      </tr>
+    </div>
+
+    <div class="form-group">
+        <button type="submit" class="btn btn-info"><i class="fa fa-database"></i> Submit</button>
+       </div>
+</form>
